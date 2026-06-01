@@ -6,68 +6,102 @@
 <title>會計師考試練習</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh}
-  .app{max-width:480px;margin:0 auto;padding:1rem}
-  h1{font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:0.25rem}
-  .subtitle{font-size:13px;color:#888;margin-bottom:1rem}
-  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
-  .stat{background:#fff;border-radius:10px;padding:10px 12px;text-align:center;border:1px solid #e8e8e4}
-  .stat-num{font-size:22px;font-weight:600}
-  .stat-num.c{color:#0f6e56}
-  .stat-num.w{color:#a32d2d}
-  .stat-label{font-size:11px;color:#888;margin-top:2px}
-  .filter-bar{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
-  .filter-btn{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid #ccc;background:#fff;color:#666;cursor:pointer;transition:all 0.15s}
-  .filter-btn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-  .wrong-filter{border-color:#e0a0a0;color:#a32d2d}
-  .wrong-filter.active{background:#a32d2d;color:#fff;border-color:#a32d2d}
+  :root{
+    --bg:#f5f5f0; --surface:#ffffff; --surface2:#f5f5f0;
+    --text:#1a1a1a; --muted:#888888; --soft:#555555;
+    --border:#e8e8e4; --border2:#e0e0d8; --line:#cccccc;
+    --accent:#1a1a1a; --accent-text:#ffffff;
+    --ok-bg:#e1f5ee; --ok-bd:#1d9e75; --ok-tx:#085041;
+    --ng-bg:#fcebeb; --ng-bd:#e24b4a; --ng-tx:#791f1f;
+    --tag-bg:#e6f1fb; --tag-tx:#0c447c;
+    --tag2-bg:#e1f5ee; --tag2-tx:#085041;
+    --tag3-bg:#faeeda; --tag3-tx:#633806;
+    --link:#185fa5;
+    --wrong-bd:#e0a0a0; --wrong-tx:#a32d2d;
+  }
+  [data-theme="dark"]{
+    --bg:#15171a; --surface:#1f2227; --surface2:#272b31;
+    --text:#e9eaec; --muted:#9aa0a8; --soft:#c2c6cc;
+    --border:#33373e; --border2:#3a3f47; --line:#454b54;
+    --accent:#e9eaec; --accent-text:#15171a;
+    --ok-bg:#173a30; --ok-bd:#2fae84; --ok-tx:#7ee0c0;
+    --ng-bg:#3d1f1f; --ng-bd:#e2706f; --ng-tx:#f4a8a7;
+    --tag-bg:#16314a; --tag-tx:#8fc1ee;
+    --tag2-bg:#163a30; --tag2-tx:#7ed8b8;
+    --tag3-bg:#3d2f15; --tag3-tx:#e6c184;
+    --link:#7ab3e8;
+    --wrong-bd:#7a4444; --wrong-tx:#f0a0a0;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Noto Sans TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.2s,color 0.2s;-webkit-font-smoothing:antialiased}
+  .app{max-width:480px;margin:0 auto;padding:1rem 1rem 3rem}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  h1{font-size:18px;font-weight:600;color:var(--text);margin-bottom:0.25rem}
+  .subtitle{font-size:13px;color:var(--muted);margin-bottom:1rem}
+  .theme-btn{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+  .theme-btn:active{transform:scale(0.92)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+  .stat{background:var(--surface);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--border)}
+  .stat-num{font-size:24px;font-weight:600}
+  .stat-num.c{color:var(--ok-bd)}
+  .stat-num.w{color:var(--ng-bd)}
+  .stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+  .filter-bar{display:flex;gap:8px;margin-bottom:0.75rem;flex-wrap:wrap}
+  .filter-btn{font-size:13px;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--soft);cursor:pointer;transition:all 0.15s;min-height:38px}
+  .filter-btn.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+  .filter-btn:active{transform:scale(0.95)}
+  .wrong-filter{border-color:var(--wrong-bd);color:var(--wrong-tx)}
+  .wrong-filter.active{background:var(--ng-bd);color:#fff;border-color:var(--ng-bd)}
   .wrong-filter #wrong-count{font-weight:600}
-  .card{background:#fff;border:1px solid #e8e8e4;border-radius:14px;padding:1.25rem;margin-bottom:1rem}
-  .tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;margin-bottom:10px;background:#e6f1fb;color:#0c447c;font-weight:500}
-  .tag.證券{background:#e1f5ee;color:#085041}
-  .tag.商業{background:#faeeda;color:#633806}
-  .question{font-size:14px;line-height:1.75;color:#1a1a1a;margin-bottom:1rem}
-  .options{display:flex;flex-direction:column;gap:8px}
-  .opt{background:#f5f5f0;border:1px solid #e0e0d8;border-radius:10px;padding:10px 14px;font-size:13px;color:#1a1a1a;cursor:pointer;text-align:left;line-height:1.55;transition:background 0.12s;width:100%}
-  .opt:hover:not(:disabled){background:#eaeae4}
-  .opt.ok{background:#e1f5ee;border-color:#1d9e75;color:#085041}
-  .opt.ng{background:#fcebeb;border-color:#e24b4a;color:#791f1f}
-  .opt.show-ans{background:#e1f5ee;border-color:#1d9e75;color:#085041}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;margin-bottom:1rem}
+  .tag{display:inline-block;font-size:11px;padding:4px 10px;border-radius:20px;margin-bottom:12px;background:var(--tag-bg);color:var(--tag-tx);font-weight:500}
+  .tag.證券{background:var(--tag2-bg);color:var(--tag2-tx)}
+  .tag.商業{background:var(--tag3-bg);color:var(--tag3-tx)}
+  .question{font-size:15px;line-height:1.8;color:var(--text);margin-bottom:1rem}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .opt{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:13px 16px;font-size:14px;color:var(--text);cursor:pointer;text-align:left;line-height:1.6;transition:background 0.12s;width:100%;min-height:48px}
+  .opt:active:not(:disabled){transform:scale(0.99)}
+  .opt.ok{background:var(--ok-bg);border-color:var(--ok-bd);color:var(--ok-tx)}
+  .opt.ng{background:var(--ng-bg);border-color:var(--ng-bd);color:var(--ng-tx)}
+  .opt.show-ans{background:var(--ok-bg);border-color:var(--ok-bd);color:var(--ok-tx)}
   .opt:disabled{cursor:default}
-  .exp{margin-top:1rem;padding:10px 14px;background:#f5f5f0;border-radius:10px;font-size:13px;color:#555;line-height:1.65;display:none;border-left:3px solid #ccc}
+  .exp{margin-top:1rem;padding:12px 16px;background:var(--surface2);border-radius:12px;font-size:14px;color:var(--soft);line-height:1.7;display:none;border-left:3px solid var(--line)}
   .exp.show{display:block}
-  .exp.ok-exp{border-left-color:#1d9e75}
-  .exp.ng-exp{border-left-color:#e24b4a}
-  .nav{display:flex;gap:8px;margin-top:0.75rem}
-  .nav button{flex:1;padding:11px;font-size:14px;border-radius:10px;border:1px solid #ccc;background:#fff;color:#1a1a1a;cursor:pointer;transition:all 0.12s;font-weight:500}
-  .nav button.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+  .exp.ok-exp{border-left-color:var(--ok-bd)}
+  .exp.ng-exp{border-left-color:var(--ng-bd)}
+  .nav{display:flex;gap:10px;margin-top:0.75rem}
+  .nav button{flex:1;padding:14px;font-size:15px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;transition:all 0.12s;font-weight:500;min-height:50px}
+  .nav button.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
   .nav button:disabled{opacity:0.3;cursor:default}
   .nav button:active:not(:disabled){transform:scale(0.97)}
-  .prog{font-size:13px;color:#888;text-align:right;margin-bottom:0.5rem}
-  .done-card{background:#fff;border:1px solid #e8e8e4;border-radius:14px;padding:2rem 1.5rem;text-align:center}
-  .done-score{font-size:42px;font-weight:700;color:#1a1a1a;margin:0.5rem 0}
-  .done-pct{font-size:15px;color:#888;margin-bottom:1.5rem}
-  .done-btns{display:flex;flex-direction:column;gap:8px}
-  .done-btns button{padding:12px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #ccc}
-  .done-btns button.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-  .done-btns button.sec{background:#fff;color:#1a1a1a}
-  .essay-card{background:#fff;border:1px solid #e8e8e4;border-radius:14px;padding:1.25rem;margin-bottom:1rem}
-  .essay-q{font-size:14px;line-height:1.75;color:#1a1a1a;margin-bottom:0.75rem}
-  .essay-toggle{font-size:13px;color:#185fa5;background:none;border:none;cursor:pointer;padding:0;text-align:left;font-weight:500}
-  .essay-ans{margin-top:0.75rem;font-size:13px;line-height:1.75;color:#555;display:none;border-top:1px solid #e8e8e4;padding-top:0.75rem}
+  .prog{font-size:13px;color:var(--muted);text-align:right;margin-bottom:0.5rem}
+  .done-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem 1.5rem;text-align:center}
+  .done-score{font-size:42px;font-weight:700;color:var(--text);margin:0.5rem 0}
+  .done-pct{font-size:15px;color:var(--muted);margin-bottom:1.5rem}
+  .done-btns{display:flex;flex-direction:column;gap:10px}
+  .done-btns button{padding:14px;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;border:1px solid var(--line);min-height:50px}
+  .done-btns button.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+  .done-btns button.sec{background:var(--surface);color:var(--text)}
+  .done-btns button:active{transform:scale(0.97)}
+  .essay-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;margin-bottom:1rem}
+  .essay-q{font-size:15px;line-height:1.8;color:var(--text);margin-bottom:0.75rem}
+  .essay-toggle{font-size:14px;color:var(--link);background:none;border:none;cursor:pointer;padding:8px 0;text-align:left;font-weight:500;min-height:40px}
+  .essay-ans{margin-top:0.75rem;font-size:14px;line-height:1.8;color:var(--soft);display:none;border-top:1px solid var(--border);padding-top:0.75rem}
   .essay-ans.show{display:block}
-  .section-label{font-size:13px;font-weight:600;color:#888;margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em}
-  .back-btn{width:100%;padding:11px;border-radius:10px;border:1px solid #ccc;background:#fff;color:#1a1a1a;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:1rem}
-  .progress-bar-wrap{height:4px;background:#e8e8e4;border-radius:2px;margin-bottom:1rem;overflow:hidden}
-  .progress-bar{height:100%;background:#1a1a1a;border-radius:2px;transition:width 0.3s}
-  .badge-correct{display:inline-block;background:#e1f5ee;color:#085041;font-size:12px;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:500}
-  .badge-wrong{display:inline-block;background:#fcebeb;color:#791f1f;font-size:12px;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:500}
+  .section-label{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:0.75rem;letter-spacing:0.05em}
+  .back-btn{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:15px;font-weight:500;cursor:pointer;margin-bottom:1rem;min-height:50px}
+  .progress-bar-wrap{height:5px;background:var(--border);border-radius:3px;margin-bottom:1rem;overflow:hidden}
+  .progress-bar{height:100%;background:var(--accent);border-radius:3px;transition:width 0.3s}
 </style>
 </head>
 <body>
 <div class="app">
-  <h1>會計師考試練習</h1>
-  <p class="subtitle">110–114年 公司法・證券交易法・商業會計法（共125題）</p>
+  <div class="topbar">
+    <div>
+      <h1>會計師考試練習</h1>
+      <p class="subtitle">110–114年 公司法・證券交易法・商業會計法（共125題）</p>
+    </div>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" aria-label="切換深淺色">🌙</button>
+  </div>
 
   <div class="stats">
     <div class="stat"><div class="stat-num c" id="s-correct">0</div><div class="stat-label">本次答對</div></div>
@@ -237,6 +271,28 @@ const ESSAYS = [
 ];
 
 const WRONG_KEY='cpa_wrong_ids_v1';
+const THEME_KEY='cpa_theme';
+
+function applyTheme(t){
+  if(t==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    document.getElementById('theme-btn').textContent='☀️';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('theme-btn').textContent='🌙';
+  }
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
+  const next=cur==='dark'?'light':'dark';
+  applyTheme(next);
+  try{localStorage.setItem(THEME_KEY,next);}catch(e){}
+}
+function initTheme(){
+  let t='light';
+  try{t=localStorage.getItem(THEME_KEY)||'light';}catch(e){}
+  applyTheme(t);
+}
 
 function loadWrongSet(){
   try{
@@ -428,6 +484,7 @@ function toggleEssay(id){
   btn.textContent=el.classList.contains('show')?'收起 ▲':'展開答題要點 ▼';
 }
 
+initTheme();
 refreshWrongCount();
 render();
 </script>
