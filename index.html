@@ -91,6 +91,43 @@
   .back-btn{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:15px;font-weight:500;cursor:pointer;margin-bottom:1rem;min-height:50px}
   .progress-bar-wrap{height:5px;background:var(--border);border-radius:3px;margin-bottom:1rem;overflow:hidden}
   .progress-bar{height:100%;background:var(--accent);border-radius:3px;transition:width 0.3s}
+
+  /* 字卡模式 */
+  .fc-header{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+  .fc-back{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text);padding:4px;min-width:32px}
+  .fc-title{font-size:16px;font-weight:600;color:var(--text)}
+  .fc-type-bar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+  .fc-type-btn{font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--soft);cursor:pointer;transition:all 0.15s}
+  .fc-type-btn.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+  .fc-prog{font-size:13px;color:var(--muted);text-align:right;margin-bottom:0.5rem}
+  .fc-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem;min-height:200px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;transition:transform 0.1s,background 0.15s;user-select:none}
+  .fc-card:active{transform:scale(0.99)}
+  .fc-card-type{font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;margin-bottom:12px;display:inline-block}
+  .fc-card-type.數字{background:var(--tag-bg);color:var(--tag-tx)}
+  .fc-card-type.比較{background:var(--tag2-bg);color:var(--tag2-tx)}
+  .fc-card-type.考題{background:var(--tag3-bg);color:var(--tag3-tx)}
+  .fc-question{font-size:15px;line-height:1.8;color:var(--text)}
+  .fc-hint{font-size:12px;color:var(--muted);margin-top:1rem}
+  .fc-answer{margin-top:1rem;width:100%}
+  .fc-answer-main{font-size:26px;font-weight:700;color:var(--text);margin-bottom:8px}
+  .fc-answer-exp{font-size:13px;color:var(--soft);line-height:1.7;text-align:left;background:var(--surface2);border-radius:10px;padding:10px 12px;border-left:3px solid var(--line)}
+  .fc-btns{display:flex;gap:8px;margin-top:0.75rem}
+  .fc-btns button{flex:1;padding:13px;border-radius:12px;font-size:14px;font-weight:500;border:1px solid var(--line);background:var(--surface);cursor:pointer;transition:all 0.12s;min-height:48px}
+  .fc-btns button.ok{color:var(--ok-bd)}
+  .fc-btns button.ng{color:var(--ng-bd)}
+  .fc-btns button:active{transform:scale(0.97)}
+  .fc-done{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem 1.5rem;text-align:center}
+  .fc-compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1rem;width:100%;text-align:left}
+  .fc-compare-col{background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.7;color:var(--soft)}
+  .fc-compare-col-title{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  .fc-entry{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.12s;min-height:56px}
+  .fc-entry:active{background:var(--surface2)}
+  .fc-entry-left{display:flex;flex-direction:column}
+  .fc-entry-name{font-size:15px;font-weight:600;color:var(--text)}
+  .fc-entry-desc{font-size:12px;color:var(--muted);margin-top:2px}
+  .fc-entry-arrow{font-size:18px;color:var(--muted)}
+  .fc-progress-bar-wrap{height:5px;background:var(--border);border-radius:3px;margin-bottom:1rem;overflow:hidden}
+  .fc-progress-bar{height:100%;background:var(--accent);border-radius:3px;transition:width 0.3s}
 </style>
 </head>
 <body>
@@ -108,6 +145,8 @@
     <div class="stat"><div class="stat-num w" id="s-wrong">0</div><div class="stat-label">本次答錯</div></div>
   </div>
 
+  <div id="flash-area" style="display:none"></div>
+
   <div class="filter-bar">
     <button class="filter-btn cat-btn active" data-cat="all" onclick="setCat('all',this)">全部科目</button>
     <button class="filter-btn cat-btn" data-cat="公司法" onclick="setCat('公司法',this)">公司法</button>
@@ -123,6 +162,7 @@
     <button class="filter-btn yr-btn" data-yr="113" onclick="setYr('113',this)">113</button>
     <button class="filter-btn yr-btn" data-yr="114" onclick="setYr('114',this)">114</button>
     <button class="filter-btn wrong-filter" id="wrong-btn" onclick="reviewWrong(this)">錯題 <span id="wrong-count">0</span></button>
+    <button class="filter-btn" style="margin-left:auto" onclick="goFlash()">字卡 ↗</button>
   </div>
 
   <div class="progress-bar-wrap"><div class="progress-bar" id="prog-bar" style="width:4%"></div></div>
@@ -402,6 +442,7 @@ function render(){
         <button class="primary" onclick="restart()">再來一輪（重新亂序）</button>
         ${wrongSet.size>0?'<button class="sec" onclick="reviewWrong(document.getElementById(\'wrong-btn\'))">複習錯題 ('+wrongSet.size+') →</button>':''}
         <button class="sec" onclick="goEssay()">練習申論題 →</button>
+        <button class="sec" onclick="goFlash()">字卡練習 →</button>
       </div>
     </div>`;
     return;
@@ -482,6 +523,178 @@ function toggleEssay(id){
   const btn=el.previousElementSibling;
   el.classList.toggle('show');
   btn.textContent=el.classList.contains('show')?'收起 ▲':'展開答題要點 ▼';
+}
+
+// ===== 字卡資料 =====
+const FLASHCARDS = [
+  // 法條數字型
+  {type:'數字',cat:'公司法',q:'發行新股時，依法至少保留多少比例由員工承購？',a:'10%',exp:'公司法§267：應保留發行新股總數10%至15%供員工承購，10%為最低門檻。'},
+  {type:'數字',cat:'公司法',q:'董事缺額達多少比例時，應於30日內召集股東臨時會補選？',a:'三分之一',exp:'公司法§201：董事缺額達三分之一時，董事會應於30日內召集股東臨時會補選。'},
+  {type:'數字',cat:'公司法',q:'股東得書面請求監察人對董事提訴，監察人幾日內不起訴，股東得自行提起？',a:'30日',exp:'公司法§214：監察人受請求後30日內不提訴，持股1%以上繼續6個月之股東得自行代位提訴。'},
+  {type:'數字',cat:'公司法',q:'有限公司出資轉讓，需其他股東表決權多少以上同意？',a:'三分之二',exp:'公司法§111：股東非得其他股東表決權三分之二以上之同意，不得轉讓出資。'},
+  {type:'數字',cat:'公司法',q:'控制公司持有他公司有表決權股份超過多少，構成控制從屬？',a:'過半數（50%以上）',exp:'公司法§369-2：持有他公司已發行有表決權股份總數超過半數，即為控制公司。'},
+  {type:'數字',cat:'公司法',q:'公司對外投資總額原則上不得超過實收資本額多少？（公開發行公司）',a:'40%',exp:'公司法§13：公開發行公司為他公司有限責任股東，投資總額不得超過實收股本總額40%（除章程另有規定或經股東會決議）。'},
+  {type:'數字',cat:'證券交易法',q:'內部人每日在集中市場賣出多少股以下，免向主管機關申報？',a:'一萬股',exp:'依相關規定，內部人於集中市場每日賣出股數未超過一萬股者得免申報。'},
+  {type:'數字',cat:'證券交易法',q:'年度財務報告應於每會計年度終了後幾個月內公告申報？',a:'四個月',exp:'證交法§36：年度財務報告應於每會計年度終了後四個月內公告並申報（非三個月）。'},
+  {type:'數字',cat:'證券交易法',q:'季報（第一至三季）應於季終了後幾日內公告申報？',a:'45日',exp:'證交法§36：每季終了後45日內，公告並申報經會計師核閱及提報董事會之財務報告。'},
+  {type:'數字',cat:'證券交易法',q:'內線交易賠償以消息公開後幾個營業日收盤平均價格計算差額？情節重大得提高至幾倍？',a:'十個營業日；三倍',exp:'證交法§157-1：以消息公開後十個營業日收盤平均價格計算差額；情節重大者法院得提高至三倍。'},
+  {type:'數字',cat:'證券交易法',q:'股東請求董事會行使短線交易歸入權，董事會幾日內不行使，股東得代公司行使？',a:'30日',exp:'證交法§157：股東請求後，董事會30日內不行使歸入權，請求之股東得為公司行使。'},
+  {type:'數字',cat:'商業會計法',q:'各項會計憑證（非永久保存）應於決算終了後至少保存幾年？',a:'5年',exp:'商業會計法§38：各項會計憑證除應永久保存或未結事項外，決算終了後至少保存5年；會計帳簿及財務報表則保存10年。'},
+
+  // 比較型
+  {type:'比較',cat:'公司法',q:'有限公司 vs 股份有限公司：最低董事人數？',a:'有限：1人\n股份：3人（公開發行5人）',exp:'公司法§108：有限公司置董事一至數人。§192：股份有限公司董事最少3人；公開發行依證交法最少5人。',compare:{left:{title:'有限公司',text:'董事1人即可\n（一至數人）'},right:{title:'股份有限公司',text:'最少3人\n公開發行：最少5人'}}},
+  {type:'比較',cat:'公司法',q:'董事利益迴避 vs 監察人代表：適用時機？',a:'董事有利害關係→不得表決\n董事與公司交易→監察人代表',exp:'公司法§178：董事對有自身利害關係議案不得加入表決。§223：董事與公司買賣等行為，由監察人代表公司。',compare:{left:{title:'董事迴避（§178）',text:'有自身利害關係\n→不得行使表決權\n（可出席、說明）'},right:{title:'監察人代表（§223）',text:'董事與公司為買賣\n等法律行為時\n→監察人代表公司'}}},
+  {type:'比較',cat:'公司法',q:'普通決議 vs 特別決議：出席及表決門檻？',a:'普通：過半數出席、過半數同意\n特別：2/3出席、過半數同意',exp:'公司法§174（普通）：過半數股東出席、出席過半數同意。§185（特別）：代表已發行股份總數2/3以上出席、出席過半數同意。',compare:{left:{title:'普通決議',text:'出席：過半數\n表決：出席過半數'},right:{title:'特別決議',text:'出席：2/3以上\n表決：出席過半數'}}},
+  {type:'比較',cat:'證券交易法',q:'公開說明書不實：發行人 vs 負責人的責任性質？',a:'發行人：無過失責任\n負責人：得舉證免責',exp:'證交法§32：發行人對公開說明書不實負無過失賠償責任；負責人、職員、承銷商則得主張已盡相當注意且有正當理由確信真實者免責。',compare:{left:{title:'發行人（公司）',text:'無過失責任\n不得主張免責'},right:{title:'負責人/承銷商',text:'可舉證：\n已盡相當注意\n→得免責'}}},
+  {type:'比較',cat:'證券交易法',q:'私募有價證券：普通公司債 vs 新股，決策層級？',a:'普通公司債：董事會決議\n新股：股東會特別決議',exp:'證交法§43-6：公開發行公司私募普通公司債，得由董事會決議為之；私募新股則須經股東會特別決議。',compare:{left:{title:'私募普通公司債',text:'董事會決議\n即可'},right:{title:'私募新股',text:'須經\n股東會特別決議'}}},
+  {type:'比較',cat:'商業會計法',q:'記帳憑證 vs 原始憑證：誰製作、誰根據誰？',a:'原始憑證：交易發生時取得/給予\n記帳憑證：根據原始憑證製作，為記帳依據',exp:'商業會計法§15-16：原始憑證係證明會計事項發生之憑證；記帳憑證係根據原始憑證製作，為記帳所根據之憑證。',compare:{left:{title:'原始憑證',text:'交易發生時\n取得或給予\n（如發票、收據）'},right:{title:'記帳憑證',text:'根據原始憑證製作\n為記帳直接依據\n（如傳票）'}}},
+  {type:'比較',cat:'商業會計法',q:'決算報表簽章 vs 記帳憑證簽章：哪些人要簽？',a:'決算報表：負責人＋經理人＋主辦會計\n記帳憑證：同上，但可授權',exp:'商業會計法§66：決算報表須負責人、經理人、主辦會計人員簽章。§36：記帳憑證同上，但得由負責人授權經理人或主辦/經辦會計人員簽章。',compare:{left:{title:'決算報表（§66）',text:'負責人\n＋經理人\n＋主辦會計\n三者缺一不可'},right:{title:'記帳憑證（§36）',text:'同上，但\n負責人可授權\n經理人或會計人員代簽'}}},
+  {type:'比較',cat:'公司法',q:'控制公司使從屬公司受損：誰可以請求賠償？',a:'從屬公司股東：持股1%以上滿1年\n從屬公司債權人：債權達淨值5%以上',exp:'公司法§369-4：從屬公司股東須繼續一年以上持有已發行股份1%以上；債權人須持有相當於從屬公司淨值5%以上債權，始得請求控制公司對從屬公司給付。',compare:{left:{title:'從屬公司股東',text:'持股1%以上\n＋繼續滿1年'},right:{title:'從屬公司債權人',text:'債權額≥\n從屬公司淨值5%'}}},
+
+  // 考題改編型（從真實題目提煉核心）
+  {type:'考題',cat:'公司法',yr:114,q:'公司依法原則上可以為他人作保嗎？',a:'不可以',exp:'公司法§16：公司除依法律或章程規定得為保證者外，不得為任何保證人。違反者對公司不生效力，由負責人自負其責。'},
+  {type:'考題',cat:'公司法',yr:114,q:'外國公司來台灣設立分公司，需要「認許」嗎？',a:'不需要',exp:'外國公司已廢除認許制，改採登記報備制（§§371以下）。'},
+  {type:'考題',cat:'公司法',yr:110,q:'公司法人股東改派代表人後，原當選之董事職務如何？',a:'當然終止',exp:'公司法§27：法人股東改派代表人時，原代表人所當選之職務（如董事長）當然終止，無須另為決議解任。'},
+  {type:'考題',cat:'公司法',yr:110,q:'監察人可以各自獨立召集股東會嗎？需要其他監察人同意？',a:'可以，不需要同意',exp:'公司法§220：監察人得各自行使監察權，包括獨立召集股東會，無須其他監察人同意。'},
+  {type:'考題',cat:'證券交易法',yr:114,q:'內線交易：知悉消息後，消息公開多久內仍不得交易？',a:'消息公開後18小時內仍禁止交易',exp:'依規定，重大消息公開後尚須經過一定沉澱期（18小時），讓消息充分擴散後，方可合法交易。'},
+  {type:'考題',cat:'證券交易法',yr:110,q:'財務報告應由哪些人簽名蓋章？監察人要嗎？',a:'董事長＋經理人＋會計主管（監察人不用）',exp:'證交法§14：財務報告由董事長、經理人及會計主管簽名蓋章並出具聲明，監察人不在法定簽章義務之列。'},
+  {type:'考題',cat:'證券交易法',yr:110,q:'新股認購權利證書的轉讓，應在認購期限「前」還是「後」？',a:'限期前轉讓',exp:'證交法相關規定：新股認購權利證書之轉讓，應於原股東認購新股之限期「前」為之，限期後不得轉讓。'},
+  {type:'考題',cat:'商業會計法',yr:114,q:'公司委任會計師辦理商業會計事務，需要監察人同意嗎？',a:'不需要',exp:'商業會計法§5：商業得委託會計師辦理會計事務，無須經監察人同意之規定。'},
+  {type:'考題',cat:'商業會計法',yr:110,q:'分期付款銷貨收入可按「淨利百分比法」入帳嗎？',a:'不行，應用「毛利百分比法」',exp:'商業會計法：分期付款銷貨收入得按毛利百分比法攤算入帳，非淨利百分比法。常見陷阱！'},
+  {type:'考題',cat:'商業會計法',yr:111,q:'記帳憑證名稱及格式，由誰訂定？經濟部還是商業自己？',a:'商業自行訂定',exp:'商業會計處理準則：記帳憑證之名稱及格式由商業自行訂定，並非由經濟部公告規定。'},
+];
+
+// ===== 字卡邏輯 =====
+let fcMode=false, fcDeck=[], fcCur=0, fcFlipped=false, fcFilter='全部';
+let fcOk=0, fcNg=0;
+
+function goFlash(){
+  fcMode=true;
+  document.querySelector('.filter-bar') && (document.querySelector('.filter-bar').style.display='');
+  document.getElementById('quiz-area').style.display='none';
+  document.getElementById('essay-area').style.display='none';
+  document.getElementById('flash-area').style.display='';
+  // hide main UI elements
+  document.querySelector('.stats').style.display='none';
+  document.querySelectorAll('.filter-bar').forEach(el=>el.style.display='none');
+  document.querySelector('.progress-bar-wrap').style.display='none';
+  document.querySelector('.prog').style.display='none';
+  fcFilter='全部';
+  fcRender();
+}
+
+function exitFlash(){
+  fcMode=false;
+  document.getElementById('flash-area').innerHTML='';
+  document.getElementById('flash-area').style.display='none';
+  document.getElementById('quiz-area').style.display='';
+  document.querySelector('.stats').style.display='';
+  document.querySelectorAll('.filter-bar').forEach(el=>el.style.display='');
+  document.querySelector('.progress-bar-wrap').style.display='';
+  document.querySelector('.prog').style.display='';
+  render();
+}
+
+function fcGetDeck(){
+  if(fcFilter==='全部') return [...FLASHCARDS];
+  return FLASHCARDS.filter(c=>c.type===fcFilter);
+}
+
+function fcShuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function fcStart(filter){
+  fcFilter=filter;
+  fcDeck=fcShuffle(fcGetDeck());
+  fcCur=0;fcFlipped=false;fcOk=0;fcNg=0;
+  fcRenderCard();
+}
+
+function fcRender(){
+  const fa=document.getElementById('flash-area');
+  const counts={全部:FLASHCARDS.length,數字:FLASHCARDS.filter(c=>c.type==='數字').length,比較:FLASHCARDS.filter(c=>c.type==='比較').length,考題:FLASHCARDS.filter(c=>c.type==='考題').length};
+  fa.innerHTML=`
+    <div class="fc-header">
+      <button class="fc-back" onclick="exitFlash()">←</button>
+      <div class="fc-title">字卡練習</div>
+    </div>
+    <div class="fc-entry" onclick="fcStart('全部')">
+      <div class="fc-entry-left"><div class="fc-entry-name">全部混合</div><div class="fc-entry-desc">數字＋比較＋考題 共 ${counts['全部']} 張</div></div>
+      <div class="fc-entry-arrow">›</div>
+    </div>
+    <div class="fc-entry" onclick="fcStart('數字')">
+      <div class="fc-entry-left"><div class="fc-entry-name">⚡ 法條數字型</div><div class="fc-entry-desc">快速記住條號和關鍵數字 共 ${counts['數字']} 張</div></div>
+      <div class="fc-entry-arrow">›</div>
+    </div>
+    <div class="fc-entry" onclick="fcStart('比較')">
+      <div class="fc-entry-left"><div class="fc-entry-name">⚖️ 比較型</div><div class="fc-entry-desc">兩個概念對照記憶 共 ${counts['比較']} 張</div></div>
+      <div class="fc-entry-arrow">›</div>
+    </div>
+    <div class="fc-entry" onclick="fcStart('考題')">
+      <div class="fc-entry-left"><div class="fc-entry-name">📝 考題改編型</div><div class="fc-entry-desc">從真實試題提煉核心 共 ${counts['考題']} 張</div></div>
+      <div class="fc-entry-arrow">›</div>
+    </div>`;
+}
+
+function fcRenderCard(){
+  const fa=document.getElementById('flash-area');
+  if(fcCur>=fcDeck.length){
+    fa.innerHTML=`
+      <div class="fc-header">
+        <button class="fc-back" onclick="fcRender()">←</button>
+        <div class="fc-title">完成！</div>
+      </div>
+      <div class="fc-done">
+        <div style="font-size:42px;font-weight:700;margin:0.5rem 0">${fcOk}<span style="font-size:20px;color:var(--muted)">/${fcDeck.length}</span></div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:1.5rem">記住了 ${Math.round(fcOk/fcDeck.length*100)}%</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button style="padding:14px;border-radius:12px;font-size:15px;font-weight:500;background:var(--accent);color:var(--accent-text);border:none;cursor:pointer;min-height:50px" onclick="fcStart(fcFilter)">再來一輪</button>
+          <button style="padding:14px;border-radius:12px;font-size:15px;font-weight:500;background:var(--surface);color:var(--text);border:1px solid var(--line);cursor:pointer;min-height:50px" onclick="fcRender()">回選單</button>
+        </div>
+      </div>`;
+    return;
+  }
+  const card=fcDeck[fcCur];
+  const isCompare=card.type==='比較'&&card.compare&&fcFlipped;
+  const compareHtml=isCompare?`<div class="fc-compare-grid">
+    <div class="fc-compare-col"><div class="fc-compare-col-title">${card.compare.left.title}</div>${card.compare.left.text.replace(/\n/g,'<br>')}</div>
+    <div class="fc-compare-col"><div class="fc-compare-col-title">${card.compare.right.title}</div>${card.compare.right.text.replace(/\n/g,'<br>')}</div>
+  </div>`:'';
+  fa.innerHTML=`
+    <div class="fc-header">
+      <button class="fc-back" onclick="fcRender()">←</button>
+      <div class="fc-title">字卡練習</div>
+    </div>
+    <div class="fc-progress-bar-wrap"><div class="fc-progress-bar" style="width:${Math.round(fcCur/fcDeck.length*100)}%"></div></div>
+    <div class="fc-prog">${fcCur+1} / ${fcDeck.length}</div>
+    <div class="fc-card" onclick="fcFlip()" id="fc-main-card">
+      <span class="fc-card-type ${card.type}">${card.type}型・${card.cat}${card.yr?' '+card.yr+'年':''}</span>
+      <div class="fc-question">${card.q}</div>
+      ${fcFlipped?`<div class="fc-answer">
+        <div class="fc-answer-main">${card.a.replace(/\n/g,'<br>')}</div>
+        ${compareHtml}
+        <div class="fc-answer-exp">${card.exp}</div>
+      </div>`:`<div class="fc-hint">點卡片看答案</div>`}
+    </div>
+    ${fcFlipped?`<div class="fc-btns">
+      <button class="ng" onclick="fcRate(false)">不熟，再看</button>
+      <button class="ok" onclick="fcRate(true)">記住了 ✓</button>
+    </div>`:''}`;
+}
+
+function fcFlip(){
+  if(fcFlipped)return;
+  fcFlipped=true;
+  fcRenderCard();
+}
+
+function fcRate(ok){
+  if(ok)fcOk++;else fcNg++;
+  fcCur++;fcFlipped=false;
+  fcRenderCard();
 }
 
 initTheme();
